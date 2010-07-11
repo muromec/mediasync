@@ -24,8 +24,6 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import android.util.Log;
-
 // REMIND: multiple IP addresses
 
 /**
@@ -287,12 +285,10 @@ public class JmDNS {
       }
       socket.setTimeToLive(255);
       socket.joinGroup(group);
-      Log.d("JmDNS", "join" + group);
    }
 
    private void closeMulticastSocket() {
       logger.finer("closeMulticastSocket()");
-      Log.d("JmDNS", "leave");
       if (socket != null) {
          // close socket
          try {
@@ -2349,11 +2345,5 @@ public class JmDNS {
       } else {
          return qualifiedName;
       }
-   }
-
-   protected void finalize() throws Throwable
-   {
-     Log.d("JmDNS", "final");
-     super.finalize();
    }
 }

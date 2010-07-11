@@ -16,6 +16,7 @@ import android.util.Log;
 public class JmDNSListener {
 	private JmDNS jmdns = null;
 	private Handler handler = null;
+        private final String TAG = "JMDNSLISTENER";
 
 	private class Lookup extends Thread {
 		private final ServiceEvent e;
@@ -26,7 +27,7 @@ public class JmDNSListener {
 
 		public void run() {
 			ServiceInfo si = jmdns.getServiceInfo(e.getType(), e.getName());
-			Log.v("JMDNSLISTENER", si.getHostAddress() + ":" + si.getPort());
+			Log.v(TAG, si.getHostAddress() + ":" + si.getPort());
 			Bundle bundle = new Bundle();
 			bundle.putString("name", si.getName());
 			bundle.putString("address",
@@ -40,30 +41,29 @@ public class JmDNSListener {
 
 	public JmDNSListener(Handler handler, InetAddress wifi) {
 		try {
-                        Log.d("MDNS", "start at " + wifi);
+                        Log.d(TAG, "start at " + wifi);
 			this.handler = handler;
 			jmdns = new JmDNS(wifi);
 			jmdns.addServiceListener("_daap._tcp.local.",
 					new ServiceListener() {
 						@Override
 						public void serviceResolved(ServiceEvent arg0) {
-                                                    Log.d("MDNS", "resolved");
+                                                    Log.d(TAG, "resolved");
 						}
 
 						@Override
 						public void serviceRemoved(ServiceEvent arg0) {
-                                                    Log.d("MDNS", "removed");
+                                                    Log.d(TAG, "removed");
 						}
 
 						@Override
 						public void serviceAdded(ServiceEvent e) {
-                                                        Log.d("MDNS", "added");
+                                                        Log.d(TAG, "added");
 							Lookup l = new Lookup(e);
 							l.start();
 						}
 					});
 		} catch (IOException e) {
-                        Log.d("MDNS", "AAAAA");
 			e.printStackTrace();
 		}
 	}

@@ -1,9 +1,11 @@
 package ua.org.muromec.MediaSync;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -11,14 +13,22 @@ import android.os.Message;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 
+import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.view.View;
+import android.view.ViewGroup;
+
 import android.util.Log;
 
 import ua.org.muromec.Util.JmDNSListener;
 
-public class MediaSync extends Activity
+public class MediaSync extends ListActivity
 {
     private JmDNSListener jmDNSListener = null;
     private MulticastLock fLock;
+    private ArrayList<Bundle> discoveredServers = new ArrayList<Bundle>();
+    private List<String> servers;
+    private ArrayAdapter<String> adapter;
 
     /** Called when the activity is first created. */
     @Override
@@ -33,7 +43,10 @@ public class MediaSync extends Activity
 		Bundle bundle = (Bundle) msg.getData();
 		String name = bundle.getString("name");
 		String address = bundle.getString("address");
-                Log.d("MediaSync", "got mdns");
+
+                servers.add(address);
+                adapter.notifyDataSetChanged();
+
 	}
     };
 
@@ -63,6 +76,12 @@ public class MediaSync extends Activity
         } catch (UnknownHostException e) {
           e.printStackTrace();
         }
+
+      servers = new ArrayList<String>();
+
+      adapter = new ArrayAdapter<String>(this, R.layout.list_item, servers);
+
+      setListAdapter(adapter);
 
     }
 

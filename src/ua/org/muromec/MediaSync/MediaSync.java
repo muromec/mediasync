@@ -19,6 +19,11 @@ import android.widget.SimpleAdapter;
 
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnCreateContextMenuListener;
+
+import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.widget.ListView;
 
 import android.util.Log;
 
@@ -31,6 +36,8 @@ public class MediaSync extends ListActivity
     private ArrayList<Bundle> discoveredServers = new ArrayList<Bundle>();
     private List<HashMap<String, String>> servers;
     private SimpleAdapter adapter;
+    private final String TAG = "MediaSync";
+    private static final int CONTEXT_BROWSE = 0;
 
     /** Called when the activity is first created. */
     @Override
@@ -91,6 +98,26 @@ public class MediaSync extends ListActivity
 
       setListAdapter(adapter);
 
+      ListView list = getListView();
+      list.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+            public void onCreateContextMenu (ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                menu.setHeaderTitle(getString(R.string.options));
+                menu.add(0, CONTEXT_BROWSE, 0, getString(R.string.browse_server));
+            }
+
+      });
+
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem aItem) { 
+        Log.d(TAG, "selected " + aItem.getItemId());
+        return true;
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        Log.d(TAG, "clicked on " + id);
     }
 
 }

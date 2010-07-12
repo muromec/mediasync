@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import android.util.Log;
+import android.content.Intent;
 
 import ua.org.muromec.Util.JmDNSListener;
 
@@ -33,7 +34,6 @@ public class MediaSync extends ListActivity
 {
     private JmDNSListener jmDNSListener = null;
     private MulticastLock fLock;
-    private ArrayList<Bundle> discoveredServers = new ArrayList<Bundle>();
     private List<HashMap<String, String>> servers;
     private SimpleAdapter adapter;
     private final String TAG = "MediaSync";
@@ -111,13 +111,22 @@ public class MediaSync extends ListActivity
 
     @Override
     public boolean onContextItemSelected(MenuItem aItem) { 
-        Log.d(TAG, "selected " + aItem.getItemId());
+        browse(aItem.getItemId());
         return true;
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Log.d(TAG, "clicked on " + id);
+        browse(position);
+    }
+
+    private void browse(int position) {
+
+        State.address = servers.get(position).get("address");
+        Log.d(TAG, "connect to " + State.address);
+        Intent intent = new Intent(MediaSync.this, Browse.class);
+        startActivity(intent);
+
     }
 
 }

@@ -24,6 +24,13 @@ public class Browse extends ListActivity
         Log.d(TAG, "resume");
 
         Log.d(TAG, "need to load database list from" + State.address);
+
+        Request r = new Request(State.address);
+        r.setPath("/db");
+
+        Thread thread = new Thread(r);
+      	thread.start();
+
     }
 
 }

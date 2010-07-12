@@ -44,7 +44,7 @@ public class JmDNSListener {
                         Log.d(TAG, "start at " + wifi);
 			this.handler = handler;
 			jmdns = new JmDNS(wifi);
-			jmdns.addServiceListener("_daap._tcp.local.",
+			jmdns.addServiceListener("_jpop._tcp.local.",
 					new ServiceListener() {
 						@Override
 						public void serviceResolved(ServiceEvent arg0) {

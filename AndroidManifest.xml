@@ -17,6 +17,10 @@
             </intent-filter>
         </activity>
         <activity android:name="Browse" android:label="@string/browse_server" />
+        <activity android:name="BrowseVariants" android:label="@string/browse_server" />
+        <activity android:name="BrowseQuery" android:label="@string/browse_server" />
+
+
     </application>
     <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="4" />
 

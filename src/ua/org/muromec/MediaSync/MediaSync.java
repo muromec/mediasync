@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,6 +21,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnCreateContextMenuListener;
 
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -30,7 +33,7 @@ import android.content.Intent;
 
 import ua.org.muromec.Util.JmDNSListener;
 
-public class MediaSync extends ListActivity
+public class MediaSync extends Activity
 {
     private JmDNSListener jmDNSListener = null;
     private MulticastLock fLock;
@@ -96,10 +99,22 @@ public class MediaSync extends ListActivity
       adapter = new SimpleAdapter(this, servers, R.layout.list_item, new String[] { "name", "address" }, 
           new int[] { R.id.list_complex_name, R.id.list_complex_address } );
 
-      setListAdapter(adapter);
 
-      ListView list = getListView();
-      list.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+      Log.d(TAG, "serverlist" + findViewById(R.id.server_list));
+
+      ListView list = (ListView)findViewById(R.id.server_list);
+      list.setAdapter(adapter);
+      list.setOnItemClickListener(
+          new OnItemClickListener () {
+            public void onItemClick(AdapterView l, View v, int position, long id) {
+                browse(position);
+            }
+          }
+      );
+        
+
+      list.setOnCreateContextMenuListener(
+          new OnCreateContextMenuListener() {
             public void onCreateContextMenu (ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
                 menu.setHeaderTitle(getString(R.string.options));
                 menu.add(0, CONTEXT_BROWSE, 0, getString(R.string.browse_server));
@@ -115,10 +130,7 @@ public class MediaSync extends ListActivity
         return true;
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        browse(position);
-    }
+    
 
     private void browse(int position) {
 

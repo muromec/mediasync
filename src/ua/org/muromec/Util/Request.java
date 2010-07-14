@@ -6,22 +6,24 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.lang.Thread;
 
-import org.json.JSONArray;
+import android.os.Handler;
+import android.os.Bundle;
+import android.os.Message;
 
 import android.util.Log;
 
 public class Request implements Runnable {
     String base = null; 
     String savedPath = null;
+    Handler handler = null;
     int len = 0;
-
-    JSONArray decoded = null;
 
     protected HttpURLConnection httpc;
     public byte[] data;
 
-    public Request(String address) {
+    public Request(String address, Handler h) {
         base = "http://" + address;
+        handler = h;
     }
 
     public void setPath(String path) {
@@ -40,14 +42,6 @@ public class Request implements Runnable {
             httpc = (HttpURLConnection) url.openConnection();
             httpc.connect();
             
-            int response_code = httpc.getResponseCode();
-
-            Log.d("Req", "got code" + response_code);
-
-            String msg = httpc.getResponseMessage();
-
-            Log.d("Req", "got msg" + msg);
-
             DataInputStream in = new DataInputStream(httpc.getInputStream());
       
             len = httpc.getContentLength();
@@ -73,11 +67,13 @@ public class Request implements Runnable {
     private void parse() {
         
       try {
-        decoded = new JSONArray(
-            new String(data, 0, len, "UTF-8" )
-        );
+        Message msg = Message.obtain();
+        Bundle bd = new Bundle();
 
-        Log.d("Req", "array" + decoded.getJSONArray(1) );
+        bd.putString("data", new String(data, 0, len, "UTF-8" ) );
+        msg.setData(bd);
+
+        handler.sendMessage(msg);
       } catch (Exception e) {
         e.printStackTrace();
       }

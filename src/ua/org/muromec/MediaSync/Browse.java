@@ -32,7 +32,7 @@ public class Browse extends Activity
     final String TAG = "Browse";
     protected List<HashMap<String, String>> elements;
     protected SimpleAdapter adapter;
-    private BrowseLoader loader = null;
+    protected BrowseLoader loader = null;
     private List<String> keys = null;
     protected String nextFilterName = null;
     private int level = 0;

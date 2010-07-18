@@ -6,6 +6,11 @@ import java.util.Iterator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
+
+
 public class Playlist extends Browse
 {
     final String TAG = "PlayList";
@@ -42,7 +47,16 @@ public class Playlist extends Browse
     }
 
     @Override
-    public void browse(int position) {}
+    public void browse(int position) {
+        String strurl = "http://"+loader.server+"/fetch/"+
+          elements.get(position).get("fhash");
+
+        Uri uri = Uri.parse(strurl);
+
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "audio/*");
+        startActivity(intent);
+    }
 
     @Override
     protected void setupMenu() { return; };

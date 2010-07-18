@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="ua.org.muromec.MediaSync"
       android:versionCode="3"
-      android:versionName="1.0">
+      android:versionName="0.3">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
@@ -17,11 +17,10 @@
             </intent-filter>
         </activity>
         <activity android:name="Browse" android:label="@string/browse_server" />
-        <activity android:name="BrowseVariants" android:label="@string/browse_server" />
-        <activity android:name="BrowseQuery" android:label="@string/browse_server" />
+        <activity android:name="Playlist" android:label="@string/browse_server" />
 
 
     </application>
-    <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="4" />
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4" />
 
 </manifest> 

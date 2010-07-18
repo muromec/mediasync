@@ -27,18 +27,51 @@ public class Browse extends Activity
 {
     final String TAG = "Browse";
     protected List<HashMap<String, String>> elements;
-    private SimpleAdapter adapter;
+    protected SimpleAdapter adapter;
+    private BrowseLoader loader = null;
+    private List<String> keys = null;
+    protected String nextFilterName = null;
+
+    // crap
+    protected int getLayout() {
+        return R.layout.browse;
+    }
+
+    protected int[] getShowLabels() {
+        return new int[] {
+          R.id.list_browse_name,
+        };
+    }
+
+    protected int getListLayout() {
+        return R.layout.list_browse;
+    }
+
+    protected String[] getShowFields() {
+        return new String[]{
+          "name"
+        };
+    }
+
+    protected int getListViewId() {
+        return R.id.element_list;
+    }
+    // end of crap
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.browse);
-        Log.d(TAG, "created browse");
-    }
+        setContentView(getLayout());
 
-    public String url() {
-        return "/db";
+        Intent intent = getIntent();
+        int level = intent.getIntExtra("level", 0 );
+        String name = intent.getStringExtra("filtername");
+
+        loader = new BrowseLoader(
+            State.req, name, level
+        );
+
     }
 
     @Override
@@ -48,12 +81,14 @@ public class Browse extends Activity
         elements = new ArrayList<HashMap<String, String>>();
 
         adapter = new SimpleAdapter(this, elements,
-            R.layout.list_browse, 
-            new String[] { "name" }, 
-            new int[] { R.id.list_browse_name, } 
+            getListLayout(),
+            getShowFields(),
+            getShowLabels()
         );
 
-        ListView list = (ListView)findViewById(R.id.element_list);
+        ListView list = (ListView)findViewById(
+            getListViewId()
+        );
         list.setAdapter(adapter);
 
         list.setOnItemClickListener(
@@ -63,36 +98,42 @@ public class Browse extends Activity
             }
           }
         );
-       
-        /// send req
-        Log.d(TAG, "resume");
 
-        Log.d(TAG, "need to load database list from" + State.address);
-
-        Request r = new Request(State.address, JsonHandler);
-        r.setPath(url());
-
-        Thread thread = new Thread(r);
-      	thread.start();
-
+        loader.load(JsonHandler);
     }
 
-    protected void display(String element_str) {
+    protected void display(Object  element_obj) {
+
+
 
       HashMap<String, String> element = new HashMap<String, String>();
-      element.put("name", element_str);
+      element.put("name", (String)element_obj);
 
       elements.add(element);
       adapter.notifyDataSetChanged();
     }
 
     public void parse(String data) {
+
       try {
         JSONArray parsed = new JSONArray(data);
         JSONArray o = parsed.getJSONArray(1);
+        JSONArray jkeys = parsed.getJSONArray(2);
+
+        keys = new ArrayList<String>();
+
+        for(int i=0; i<jkeys.length(); i++) {
+          keys.add(jkeys.getString(i));
+        }
+
+        if(keys.size() > 0 && loader.level > 0) {
+          nextFilterName = keys.get(0);
+        } else {
+          nextFilterName = null;
+        }
 
         for (int i=0; i<o.length(); i++) {
-          display(o.getString(i));
+          display((Object)o.get(i));
         }
 
       } catch (Exception e) {
@@ -107,7 +148,6 @@ public class Browse extends Activity
         Bundle bundle = (Bundle) msg.getData();
         String data = bundle.getString("data");
 
-        Log.d(TAG, "got data" + data);
         parse(data);
 
       }
@@ -115,9 +155,35 @@ public class Browse extends Activity
 
     public void browse(int position) {
       String element = elements.get(position).get("name");
-      State.db = element;
 
-      Intent intent = new Intent(Browse.this, BrowseVariants.class);
+      if(loader.name == null) {
+        nextFilterName = element;
+      } else {
+
+        while(State.req.size() + 1 > loader.level) {
+          State.req.remove( State.req.size() - 1);
+        }
+
+        ArrayList filter = new ArrayList();
+        filter.add(loader.name);
+        filter.add(element);
+
+        State.req.add(filter);
+
+      }
+
+      Class next = null;
+
+      if(nextFilterName == null) {
+        next = Playlist.class;
+      } else {
+        next = Browse.class;
+      }
+
+      Intent intent = new Intent(Browse.this, next);
+      intent.putExtra("level", loader.level +1 );
+      intent.putExtra("filtername", nextFilterName);
+
       startActivity(intent);
     }
 }

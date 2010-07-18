@@ -37,7 +37,8 @@ public class MediaSync extends Activity
 {
     private JmDNSListener jmDNSListener = null;
     private MulticastLock fLock;
-    private List<HashMap<String, String>> servers;
+    private List<HashMap<String, String>> servers = new 
+      ArrayList<HashMap<String, String>>();
     private SimpleAdapter adapter;
     private final String TAG = "MediaSync";
     private static final int CONTEXT_BROWSE = 0;
@@ -47,7 +48,11 @@ public class MediaSync extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.main);
+
+        setupServerList();
+        setupMDNS();
     }
     private Handler mDNSHandler = new Handler() {
         @Override
@@ -76,10 +81,7 @@ public class MediaSync extends Activity
 		return res;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
+    private void setupMDNS() {
         try {
           WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 
@@ -94,13 +96,12 @@ public class MediaSync extends Activity
           e.printStackTrace();
         }
 
-      servers = new ArrayList<HashMap<String, String>>();
+    }
 
+    private void setupServerList() {
       adapter = new SimpleAdapter(this, servers, R.layout.list_item, new String[] { "name", "address" }, 
           new int[] { R.id.list_complex_name, R.id.list_complex_address } );
 
-
-      Log.d(TAG, "serverlist" + findViewById(R.id.server_list));
 
       ListView list = (ListView)findViewById(R.id.server_list);
       list.setAdapter(adapter);
@@ -112,7 +113,6 @@ public class MediaSync extends Activity
           }
       );
         
-
       list.setOnCreateContextMenuListener(
           new OnCreateContextMenuListener() {
             public void onCreateContextMenu (ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -121,7 +121,6 @@ public class MediaSync extends Activity
             }
 
       });
-
     }
 
     @Override
@@ -137,6 +136,7 @@ public class MediaSync extends Activity
         State.address = servers.get(position).get("address");
         Log.d(TAG, "connect to " + State.address);
         Intent intent = new Intent(MediaSync.this, Browse.class);
+        intent.putExtra("level", 0);
         startActivity(intent);
 
     }

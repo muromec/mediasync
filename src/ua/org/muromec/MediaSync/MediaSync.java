@@ -23,6 +23,7 @@ import android.view.View.OnCreateContextMenuListener;
 
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -125,7 +126,10 @@ public class MediaSync extends Activity
 
     @Override
     public boolean onContextItemSelected(MenuItem aItem) { 
-        browse(aItem.getItemId());
+
+        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) aItem.getMenuInfo();
+
+        browse(menuInfo.position);
         return true;
     }
 

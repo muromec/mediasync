@@ -11,12 +11,16 @@ import android.os.Handler;
 import android.os.Message;
 
 import android.view.View;
+import android.view.View.OnCreateContextMenuListener;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import android.util.Log;
 import android.content.Intent;
@@ -32,6 +36,9 @@ public class Browse extends Activity
     private List<String> keys = null;
     protected String nextFilterName = null;
     private int level = 0;
+    protected ListView list;
+
+    static private int CONTEXT_PLAYLIST = -1;
 
     // crap
     protected int getLayout() {
@@ -70,11 +77,11 @@ public class Browse extends Activity
         List<String> req = intent.getStringArrayListExtra("req");
         String server = intent.getStringExtra("server");
         loader = new BrowseLoader(req, server);
+
+        setupList();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    protected void setupList() {
 
         elements = new ArrayList<HashMap<String, String>>();
 
@@ -84,9 +91,7 @@ public class Browse extends Activity
             getShowLabels()
         );
 
-        ListView list = (ListView)findViewById(
-            getListViewId()
-        );
+        list = (ListView)findViewById( getListViewId());
         list.setAdapter(adapter);
 
         list.setOnItemClickListener(
@@ -97,7 +102,44 @@ public class Browse extends Activity
           }
         );
 
+        setupMenu();
         loader.load(JsonHandler);
+    }
+
+    protected void setupMenu() {
+        if(level > 0) {
+          list.setOnCreateContextMenuListener(contextMenu);
+        }
+    }
+
+    private OnCreateContextMenuListener contextMenu = new OnCreateContextMenuListener() {
+
+      public void onCreateContextMenu (ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+         menu.setHeaderTitle(getString(R.string.options));
+          
+         menu.add(0, CONTEXT_PLAYLIST, 0, R.string.playlist);
+
+         for(int i=0; i<keys.size(); i++) {
+           menu.add(1, i, 0, keys.get(i) );
+
+         }
+      }
+
+    };
+
+    @Override
+    public boolean onContextItemSelected(MenuItem aItem) { 
+
+        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) aItem.getMenuInfo();
+
+        if(aItem.getItemId() == CONTEXT_PLAYLIST) {
+          nextFilterName = null;
+        } else {
+          nextFilterName = keys.get(aItem.getItemId());
+        }
+
+        browse(menuInfo.position);
+        return true;
     }
 
     protected void display(Object  element_obj) {
@@ -120,12 +162,14 @@ public class Browse extends Activity
 
         keys = new ArrayList<String>();
 
-        for(int i=0; i<jkeys.length(); i++) {
-          keys.add(jkeys.getString(i));
-        }
+        
+        if(jkeys.length() > 0 && level > 0) {
+          nextFilterName = jkeys.getString(0);
 
-        if(keys.size() > 0 && level > 0) {
-          nextFilterName = keys.get(0);
+          for(int i=0; i<jkeys.length(); i++) {
+            keys.add(jkeys.getString(i));
+          }
+
         } else {
           nextFilterName = null;
         }

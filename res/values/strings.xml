@@ -3,4 +3,5 @@
     <string name="app_name">MediaSync</string>
     <string name="options">Options</string>
     <string name="browse_server">Browse Server</string>
+    <string name="playlist">playlist</string>
 </resources>

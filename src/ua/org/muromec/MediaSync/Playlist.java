@@ -42,6 +42,12 @@ public class Playlist extends Browse
     }
 
     @Override
+    public void browse(int position) {}
+
+    @Override
+    protected void setupMenu() { return; };
+
+    @Override
     protected void display(Object element_obj) {
 
       JSONObject json = (JSONObject) element_obj;

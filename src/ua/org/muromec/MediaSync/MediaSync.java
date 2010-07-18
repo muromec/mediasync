@@ -133,10 +133,12 @@ public class MediaSync extends Activity
 
     private void browse(int position) {
 
-        State.address = servers.get(position).get("address");
-        Log.d(TAG, "connect to " + State.address);
         Intent intent = new Intent(MediaSync.this, Browse.class);
         intent.putExtra("level", 0);
+        intent.putExtra("req", new ArrayList<String>());
+        intent.putExtra("server", servers.get(position).
+            get( "address" ) );
+
         startActivity(intent);
 
     }

@@ -31,6 +31,7 @@ public class Browse extends Activity
     private BrowseLoader loader = null;
     private List<String> keys = null;
     protected String nextFilterName = null;
+    private int level = 0;
 
     // crap
     protected int getLayout() {
@@ -65,13 +66,10 @@ public class Browse extends Activity
         setContentView(getLayout());
 
         Intent intent = getIntent();
-        int level = intent.getIntExtra("level", 0 );
-        String name = intent.getStringExtra("filtername");
-
-        loader = new BrowseLoader(
-            State.req, name, level
-        );
-
+        level = intent.getIntExtra("level", 0 );
+        List<String> req = intent.getStringArrayListExtra("req");
+        String server = intent.getStringExtra("server");
+        loader = new BrowseLoader(req, server);
     }
 
     @Override
@@ -126,7 +124,7 @@ public class Browse extends Activity
           keys.add(jkeys.getString(i));
         }
 
-        if(keys.size() > 0 && loader.level > 0) {
+        if(keys.size() > 0 && level > 0) {
           nextFilterName = keys.get(0);
         } else {
           nextFilterName = null;
@@ -156,20 +154,16 @@ public class Browse extends Activity
     public void browse(int position) {
       String element = elements.get(position).get("name");
 
-      if(loader.name == null) {
+      ArrayList<String> nextReq = new ArrayList<String>(loader.req);
+
+      if(level == 0) {
         nextFilterName = element;
       } else {
+        nextReq.add(element);
+      }
 
-        while(State.req.size() + 1 > loader.level) {
-          State.req.remove( State.req.size() - 1);
-        }
-
-        ArrayList filter = new ArrayList();
-        filter.add(loader.name);
-        filter.add(element);
-
-        State.req.add(filter);
-
+      if(nextFilterName != null) {
+        nextReq.add(nextFilterName);
       }
 
       Class next = null;
@@ -181,8 +175,9 @@ public class Browse extends Activity
       }
 
       Intent intent = new Intent(Browse.this, next);
-      intent.putExtra("level", loader.level +1 );
-      intent.putExtra("filtername", nextFilterName);
+      intent.putExtra("level", level +1 );
+      intent.putExtra("req", nextReq);
+      intent.putExtra("server", loader.server);
 
       startActivity(intent);
     }

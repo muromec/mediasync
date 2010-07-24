@@ -48,10 +48,10 @@ public class Playlist extends Browse
 
     @Override
     public void browse(int position) {
-        String strurl = "http://"+loader.server+"/fetch/"+
-          elements.get(position).get("fhash");
+        Dump dump = new Dump(loader.server, elements.get(position) );
 
-        Uri uri = Uri.parse(strurl);
+        Uri uri = Uri.parse(dump.getURI());
+        //dump.start();
 
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
         intent.setDataAndType(uri, "audio/*");

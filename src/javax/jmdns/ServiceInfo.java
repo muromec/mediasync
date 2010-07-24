@@ -484,8 +484,9 @@ public class ServiceInfo implements DNSListener {
       if ((rec != null) && !rec.isExpired(now)) {
          switch (rec.type) {
             case DNSConstants.TYPE_A: // IPv4
-            case DNSConstants.TYPE_AAAA: // IPv6 FIXME [PJYF Oct 14 2004] This
+//            case DNSConstants.TYPE_AAAA: // IPv6 FIXME [PJYF Oct 14 2004] This
                // has not been tested
+               // FIXME: [muromec Jul 24 2010] this breaks IPv4 with avahi
                if (rec.name.equals(server)) {
                   addr = ((DNSRecord.Address) rec).getAddress();
 

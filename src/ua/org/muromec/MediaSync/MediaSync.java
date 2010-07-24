@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import android.database.Cursor;
+
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 
@@ -42,6 +44,7 @@ public class MediaSync extends Activity
     private SimpleAdapter adapter;
     private final String TAG = "MediaSync";
     private static final int CONTEXT_BROWSE = 0;
+    private DBAdapter db;
 
     /** Called when the activity is first created. */
     @Override
@@ -51,7 +54,10 @@ public class MediaSync extends Activity
 
         setContentView(R.layout.main);
 
+        db = new DBAdapter(this);
+
         servers = new ArrayList<HashMap<String, String>>();
+        loadOldServers();
         setupServerList();
         setupMDNS();
     }
@@ -64,10 +70,20 @@ public class MediaSync extends Activity
 
           if(add) {
             String address = bundle.getString("address");
+            String uniq = bundle.getString("uniq");
+
+            for(int i=0; i<servers.size();i++) {
+              if (uniq.equals( servers.get(i).get("uniq") ) ) {
+                servers.remove(i);
+                break;
+              }
+            }
 
             HashMap<String, String> server = new HashMap<String, String>();
             server.put("name", name);
             server.put("address", address);
+            server.put("uniq", uniq);
+            server.put("white", bundle.getString("white"));
 
             servers.add(server);
 
@@ -112,6 +128,40 @@ public class MediaSync extends Activity
 
     }
 
+    private void loadOldServers() {
+        db.open();
+        Cursor cursor = db.getAllServers();
+        if (cursor == null || cursor.getCount() == 0) {
+          if (cursor != null) {
+            cursor.close();
+          }
+          db.close();
+          return;
+        }
+
+
+        int uniqIndex = cursor.getColumnIndexOrThrow("_uniq");
+        int nameIndex = cursor.getColumnIndexOrThrow("server_name");
+        int whiteIndex = cursor.getColumnIndexOrThrow("white");
+
+        cursor.moveToFirst();
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+
+          HashMap<String, String> server = new HashMap<String, String>();
+
+          server.put("uniq", cursor.getString(uniqIndex));
+          server.put("name", cursor.getString(nameIndex));
+          server.put("address", cursor.getString(whiteIndex));
+          servers.add(server);
+
+          cursor.moveToNext();
+
+        }
+        cursor.close();
+        db.close();
+    }
+
     private void setupServerList() {
       adapter = new SimpleAdapter(this, servers, R.layout.list_item, new String[] { "name", "address" }, 
           new int[] { R.id.list_complex_name, R.id.list_complex_address } );
@@ -146,15 +196,29 @@ public class MediaSync extends Activity
         return true;
     }
 
-    
+    private void remember(HashMap<String, String> server) {
+        if (! server.containsKey("white") ) {
+            return;
+        }
+
+        db.open();
+        db.deleteServer(server.get("uniq"));
+        db.insertServer( 
+            server.get("uniq"), server.get("name"), 
+            server.get("address"), server.get("white")
+        );
+        db.close();
+    }
 
     private void browse(int position) {
+
+        HashMap<String, String> server = servers.get(position);
+        remember(server);
 
         Intent intent = new Intent(MediaSync.this, Browse.class);
         intent.putExtra("level", 0);
         intent.putExtra("req", new ArrayList<String>());
-        intent.putExtra("server", servers.get(position).
-            get( "address" ) );
+        intent.putExtra("server", server.get( "address" ) );
 
         startActivity(intent);
 

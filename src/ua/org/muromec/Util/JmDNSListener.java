@@ -42,7 +42,7 @@ public class JmDNSListener {
 			Bundle bundle = new Bundle();
 			bundle.putString("name", e.getName());
 			bundle.putString("address", address);
-                        bundle.putString("uniq", text[0]);
+                        bundle.putString("uniq", text[0].substring(1));
                         bundle.putString("white", text[1]);
                         bundle.putBoolean("add", true);
 

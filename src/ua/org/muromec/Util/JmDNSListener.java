@@ -17,56 +17,79 @@ public class JmDNSListener {
 	private JmDNS jmdns = null;
 	private Handler handler = null;
         private final String TAG = "JMDNSLISTENER";
+        private static int ADD = 1;
+        private static int REM = 0;
 
 	private class Lookup extends Thread {
 		private final ServiceEvent e;
+                private int mode;
 
-		public Lookup(final ServiceEvent e) {
+		public Lookup(final ServiceEvent e){
 			this.e = e;
 		}
 
 		public void run() {
 			ServiceInfo si = jmdns.getServiceInfo(e.getType(), e.getName());
-			Log.v(TAG, si.getHostAddress() + ":" + si.getPort());
+
+                        if ( si.getTextString() == null) {
+                          return;
+                        }
+
+                        String[] text = si.getTextString().split("\t");
+                        String address = si.getHostAddress() + ":" + si.getPort();
+                        Log.d(TAG, si.getTextString());
+
 			Bundle bundle = new Bundle();
-			bundle.putString("name", si.getName());
-			bundle.putString("address",
-					si.getHostAddress() + ":" + si.getPort());
+			bundle.putString("name", e.getName());
+			bundle.putString("address", address);
+                        bundle.putString("uniq", text[0]);
+                        bundle.putString("white", text[1]);
+                        bundle.putBoolean("add", true);
+
 			Message msg = Message.obtain();
 			msg.setTarget(handler);
 			msg.setData(bundle);
+
 			handler.sendMessage(msg);
 		}
 	}
 
-	public JmDNSListener(Handler handler, InetAddress wifi) {
-		try {
-                        Log.d(TAG, "start at " + wifi);
-			this.handler = handler;
-			jmdns = new JmDNS(wifi);
-			jmdns.addServiceListener("_jpop._tcp.local.",
-					new ServiceListener() {
-						@Override
-						public void serviceResolved(ServiceEvent arg0) {
-                                                    Log.d(TAG, "resolved");
-						}
+        private ServiceListener mdnsListener = new ServiceListener() {
+          @Override
+          public void serviceResolved(ServiceEvent arg0) {
+          }
 
-						@Override
-						public void serviceRemoved(ServiceEvent arg0) {
-                                                    Log.d(TAG, "removed");
-						}
+          @Override
+          public void serviceRemoved(ServiceEvent e) {
+            Bundle bundle = new Bundle();
+	    bundle.putString("name", e.getName());
+            bundle.putBoolean("add", false);
 
-						@Override
-						public void serviceAdded(ServiceEvent e) {
-                                                        Log.d(TAG, "added");
-							Lookup l = new Lookup(e);
-							l.start();
-						}
-					});
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+            Message msg = Message.obtain();
+	    msg.setTarget(handler);
+	    msg.setData(bundle);
+			
+            handler.sendMessage(msg);
+
+          }
+
+          @Override
+          public void serviceAdded(ServiceEvent e) {
+            Lookup l = new Lookup(e);
+            l.start();
+          }
+        };
+
+        public JmDNSListener(Handler handler, InetAddress wifi) {
+          try {
+            Log.d(TAG, "start at " + wifi);
+            this.handler = handler;
+            jmdns = new JmDNS(wifi);
+            jmdns.addServiceListener("_jpop._tcp.local.", mdnsListener);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
 
 	public void interrupt() {
 		jmdns.close();

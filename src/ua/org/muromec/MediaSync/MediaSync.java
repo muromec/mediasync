@@ -38,8 +38,7 @@ public class MediaSync extends Activity
 {
     private JmDNSListener jmDNSListener = null;
     private MulticastLock fLock;
-    private List<HashMap<String, String>> servers = new 
-      ArrayList<HashMap<String, String>>();
+    private List<HashMap<String, String>> servers = null;
     private SimpleAdapter adapter;
     private final String TAG = "MediaSync";
     private static final int CONTEXT_BROWSE = 0;
@@ -52,25 +51,39 @@ public class MediaSync extends Activity
 
         setContentView(R.layout.main);
 
+        servers = new ArrayList<HashMap<String, String>>();
         setupServerList();
         setupMDNS();
     }
     private Handler mDNSHandler = new Handler() {
         @Override
-	public void handleMessage(Message msg) {
-		Bundle bundle = (Bundle) msg.getData();
-		String name = bundle.getString("name");
-		String address = bundle.getString("address");
+        public void handleMessage(Message msg) {
+          Bundle bundle = (Bundle) msg.getData();
+          Boolean add = bundle.getBoolean("add");
+          String name = bundle.getString("name");
 
-                HashMap<String, String> server = new HashMap<String, String>();
-                server.put("name", name);
-                server.put("address", address);
+          if(add) {
+            String address = bundle.getString("address");
 
-                servers.add(server);
+            HashMap<String, String> server = new HashMap<String, String>();
+            server.put("name", name);
+            server.put("address", address);
 
-                adapter.notifyDataSetChanged();
+            servers.add(server);
 
-	}
+          }  else {
+            for(int i=0; i<servers.size();i++) {
+              Log.d(TAG, servers.get(i).get("name") );
+
+              if (name.equals( servers.get(i).get("name") ) ) {
+                servers.remove(i);
+                break;
+              }
+            }
+          }
+
+          adapter.notifyDataSetChanged();
+        }
     };
 
     private byte[] intToIp(int i) {

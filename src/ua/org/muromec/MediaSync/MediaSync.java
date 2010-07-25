@@ -71,7 +71,9 @@ public class MediaSync extends Activity
           if(add) {
             String address = bundle.getString("address");
             String uniq = bundle.getString("uniq");
+            String white = bundle.getString("white");
 
+            // replace remembered server with actual data
             for(int i=0; i<servers.size();i++) {
               if (uniq.equals( servers.get(i).get("uniq") ) ) {
                 servers.remove(i);
@@ -83,7 +85,11 @@ public class MediaSync extends Activity
             server.put("name", name);
             server.put("address", address);
             server.put("uniq", uniq);
-            server.put("white", bundle.getString("white"));
+
+            // skip reserved
+            if(! white.equals("none") ) {
+              server.put("white", white);
+            }
 
             servers.add(server);
 

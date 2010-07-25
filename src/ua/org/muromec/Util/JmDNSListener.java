@@ -3,6 +3,8 @@ package ua.org.muromec.Util;
 import java.io.IOException;
 import java.net.InetAddress;
 
+import java.util.List;
+
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
@@ -20,6 +22,10 @@ public class JmDNSListener {
         private static int ADD = 1;
         private static int REM = 0;
 
+        private static int TXT_UNIQ_POS = 0;
+        private static int TXT_WHITE_POST = 1;
+        private static int TXT_COUNT = 2;
+
 	private class Lookup extends Thread {
 		private final ServiceEvent e;
                 private int mode;
@@ -31,19 +37,19 @@ public class JmDNSListener {
 		public void run() {
 			ServiceInfo si = jmdns.getServiceInfo(e.getType(), e.getName());
 
-                        if ( si.getTextString() == null) {
+                        List<String> text = si.getTextList();
+
+                        if ( text.size() < TXT_COUNT) {
                           return;
                         }
 
-                        String[] text = si.getTextString().split("\t");
                         String address = si.getHostAddress() + ":" + si.getPort();
-                        Log.d(TAG, si.getTextString());
 
 			Bundle bundle = new Bundle();
 			bundle.putString("name", e.getName());
 			bundle.putString("address", address);
-                        bundle.putString("uniq", text[0].substring(1));
-                        bundle.putString("white", text[1]);
+                        bundle.putString("uniq", text.get(TXT_UNIQ_POS) );
+                        bundle.putString("white", text.get(TXT_WHITE_POST));
                         bundle.putBoolean("add", true);
 
 			Message msg = Message.obtain();

@@ -12,6 +12,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.TimerTask;
 import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * JmDNS service information.
@@ -295,6 +297,28 @@ public class ServiceInfo implements DNSListener {
     */
    public byte[] getTextBytes() {
       return text;
+   }
+
+   public List<String> getTextList() {
+      ArrayList<String> a = new ArrayList<String>();
+
+      if(text == null || text.length == 0) {
+        return a;
+      }
+
+      int start = 0;
+      while (start < text.length) {
+        if ( (start + text[start]) > text.length ) {
+          break;
+        }
+
+         a.add( readUTF(text, start+1, text[start]) );
+
+         start += text[start]+1;
+
+      }
+    
+      return a;
    }
 
    /**

@@ -4,4 +4,7 @@
     <string name="options">Options</string>
     <string name="browse_server">Browse Server</string>
     <string name="playlist">playlist</string>
+    <string name="play">Play</string>
+    <string name="download">Download</string>
+    <string name="download_all">Download all</string>
 </resources>

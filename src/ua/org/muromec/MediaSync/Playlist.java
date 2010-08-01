@@ -6,6 +6,13 @@ import java.util.Iterator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.view.View;
+import android.view.View.OnCreateContextMenuListener;
+import android.view.ContextMenu;
+import android.view.MenuItem;
+
+import android.widget.AdapterView.AdapterContextMenuInfo;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
@@ -14,6 +21,9 @@ import android.util.Log;
 public class Playlist extends Browse
 {
     final String TAG = "PlayList";
+    static private final int CONTEXT_DOWNLOAD = 0;
+    static private final int CONTEXT_DOWNLOAD_ALL = 1;
+    static private final int CONTEXT_PLAY = 2;
 
     @Override
     protected int getLayout() {
@@ -46,8 +56,7 @@ public class Playlist extends Browse
         return R.id.media_list;
     }
 
-    @Override
-    public void browse(int position) {
+    public void play(int position) {
         Dump dump = new Dump(loader.server, elements.get(position) );
 
         Uri uri = Uri.parse(dump.getURI());
@@ -58,8 +67,57 @@ public class Playlist extends Browse
         startActivity(intent);
     }
 
+    public void download(int position) {
+        Dump dump = new Dump(loader.server, elements.get(position) );
+        dump.start();
+    }
+
+    public void download() {
+        for(int i=0; i<elements.size(); i++) {
+            Dump dump = new Dump(loader.server, elements.get(i));
+            dump.start();
+        }
+    }
+
+
     @Override
-    protected void setupMenu() { return; };
+    public boolean onContextItemSelected(MenuItem aItem) { 
+
+        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) aItem.getMenuInfo();
+        switch(aItem.getItemId()) {
+          case CONTEXT_PLAY:
+            play(menuInfo.position);
+            break;
+          case CONTEXT_DOWNLOAD:
+            Log.d(TAG, "download id " + menuInfo.position);
+            download(menuInfo.position);
+            break;
+          case CONTEXT_DOWNLOAD_ALL:
+            Log.d(TAG, "download all");
+            download();
+            break;
+        }
+
+        return true;
+    }
+
+    private OnCreateContextMenuListener contextMenu = new OnCreateContextMenuListener() {
+
+      public void onCreateContextMenu (ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+         menu.setHeaderTitle(getString(R.string.options));
+          
+         menu.add(0, CONTEXT_PLAY, 0, R.string.play);
+         menu.add(0, CONTEXT_DOWNLOAD, 0, R.string.download);
+         menu.add(0, CONTEXT_DOWNLOAD_ALL, 0, R.string.download_all);
+
+      }
+
+    };
+
+    @Override
+    protected void setupMenu() {
+        list.setOnCreateContextMenuListener(contextMenu);
+    }
 
     @Override
     protected void display(Object element_obj) {

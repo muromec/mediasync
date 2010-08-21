@@ -14,6 +14,7 @@ import android.os.Environment;
 public class Dump implements Runnable {
     private HashMap<String, String> media;
     private String server;
+    private String filename;
 
     public Dump(String s, HashMap<String, String> m) {
       media = m;
@@ -43,7 +44,7 @@ public class Dump implements Runnable {
       dump();
     }
 
-    private void dump() {
+    public void dump() {
 
       FileOutputStream out = getOut();
 
@@ -97,6 +98,10 @@ public class Dump implements Runnable {
 
     }
 
+    public String getFilename() {
+      return filename;
+    }
+
     public FileOutputStream getOut() {
       File external = Environment.getExternalStorageDirectory();
 
@@ -122,7 +127,9 @@ public class Dump implements Runnable {
 
       fname.append( ".mp3" ); //FIXME
 
-      File out = new File(fname.toString() );
+      filename = fname.toString();
+
+      File out = new File(filename);
 
       try {
         out.createNewFile();
@@ -130,6 +137,7 @@ public class Dump implements Runnable {
         return new FileOutputStream(out);
       } catch (java.io.IOException e) {
         Log.e("DUMP", "cant open out file: " + out.getPath() );
+        e.printStackTrace();
         return null;
       }
     }

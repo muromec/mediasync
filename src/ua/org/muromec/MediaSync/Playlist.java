@@ -68,14 +68,15 @@ public class Playlist extends Browse
     }
 
     public void download(int position) {
-        Dump dump = new Dump(loader.server, elements.get(position) );
-        dump.start();
+        Intent dload = new Intent(Playlist.this, DLoadService.class);
+        dload.putExtra("server", loader.server);
+        dload.putExtra("media", elements.get(position) );
+        startService(dload);
     }
 
     public void download() {
         for(int i=0; i<elements.size(); i++) {
-            Dump dump = new Dump(loader.server, elements.get(i));
-            dump.start();
+            download(i);
         }
     }
 

@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import android.content.Intent;
+import android.content.Context;
+
 import android.net.Uri;
 import android.util.Log;
 
@@ -60,7 +62,6 @@ public class Playlist extends Browse
         Dump dump = new Dump(loader.server, elements.get(position) );
 
         Uri uri = Uri.parse(dump.getURI());
-        //dump.start();
 
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
         intent.setDataAndType(uri, "audio/*");
@@ -68,10 +69,7 @@ public class Playlist extends Browse
     }
 
     public void download(int position) {
-        Intent dload = new Intent(Playlist.this, DLoadService.class);
-        dload.putExtra("server", loader.server);
-        dload.putExtra("media", elements.get(position) );
-        startService(dload);
+        DLoadService.add( (Context)this, loader.server, elements.get(position) );
     }
 
     public void download() {

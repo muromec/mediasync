@@ -71,22 +71,22 @@ public class Browse extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        setup();
+
+    }
+
+    protected void setup() {
+
         setContentView(getLayout());
 
         Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-          String query = intent.getStringExtra(SearchManager.QUERY);
-          Log.d(TAG, "query " + query);
 
-        } else {
+        level = intent.getIntExtra("level", 0 );
+        List<String> req = intent.getStringArrayListExtra("req");
+        loader = new BrowseLoader(req, MediaSync.server);
 
-          level = intent.getIntExtra("level", 0 );
-          List<String> req = intent.getStringArrayListExtra("req");
-          String server = intent.getStringExtra("server");
-          loader = new BrowseLoader(req, server);
-
-          setupList();
-        }
+        setupList();
     }
 
     protected void setupList() {

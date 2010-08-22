@@ -47,6 +47,7 @@ public class MediaSync extends Activity
     private final String TAG = "MediaSync";
     private static final int CONTEXT_BROWSE = 0;
     private DBAdapter db;
+    public static String server = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -233,12 +234,16 @@ public class MediaSync extends Activity
         connect((String)server.get( "address" ));
     }
 
-    private void connect(String server) {
+    private void connect(String mserver) {
 
         Intent intent = new Intent(MediaSync.this, Browse.class);
+
+        ArrayList<String> req = new ArrayList<String>();
+        req.add("db");
         intent.putExtra("level", 0);
-        intent.putExtra("req", new ArrayList<String>());
-        intent.putExtra("server", server );
+        intent.putExtra("req", req);
+        //intent.putExtra("server", server );
+        server = mserver;
 
         startActivity(intent);
 

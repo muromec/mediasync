@@ -18,8 +18,6 @@ public class BrowseLoader {
   public void load(Handler h) {
     StringBuilder url = new StringBuilder();
 
-    url.append("/db");
-
     for(int i=0; i<req.size() ; i++) {
       url.append("/");
       try {

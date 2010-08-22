@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.HashMap;
 
 import android.app.Activity;
+import android.app.SearchManager;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -73,12 +74,19 @@ public class Browse extends Activity
         setContentView(getLayout());
 
         Intent intent = getIntent();
-        level = intent.getIntExtra("level", 0 );
-        List<String> req = intent.getStringArrayListExtra("req");
-        String server = intent.getStringExtra("server");
-        loader = new BrowseLoader(req, server);
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+          String query = intent.getStringExtra(SearchManager.QUERY);
+          Log.d(TAG, "query " + query);
 
-        setupList();
+        } else {
+
+          level = intent.getIntExtra("level", 0 );
+          List<String> req = intent.getStringArrayListExtra("req");
+          String server = intent.getStringExtra("server");
+          loader = new BrowseLoader(req, server);
+
+          setupList();
+        }
     }
 
     protected void setupList() {

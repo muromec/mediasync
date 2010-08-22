@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import android.app.Activity;
+import android.app.SearchManager;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -51,6 +53,14 @@ public class MediaSync extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        Intent intent = getIntent();
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+          String server = intent.getStringExtra(SearchManager.QUERY);
+          connect(server);
+
+        }
 
         setContentView(R.layout.main);
 
@@ -217,14 +227,18 @@ public class MediaSync extends Activity
     }
 
     private void browse(int position) {
-
         HashMap<String, String> server = servers.get(position);
         remember(server);
+
+        connect((String)server.get( "address" ));
+    }
+
+    private void connect(String server) {
 
         Intent intent = new Intent(MediaSync.this, Browse.class);
         intent.putExtra("level", 0);
         intent.putExtra("req", new ArrayList<String>());
-        intent.putExtra("server", server.get( "address" ) );
+        intent.putExtra("server", server );
 
         startActivity(intent);
 

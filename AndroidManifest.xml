@@ -16,8 +16,19 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+              android:resource="@xml/searchable_serv"/>
         </activity>
-        <activity android:name="Browse" android:label="@string/browse_server" />
+        <activity android:name="Browse" android:label="@string/browse_server">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+              android:resource="@xml/searchable_media"/>
+        </activity>
         <activity android:name="Playlist" android:label="@string/browse_server" />
         <service android:name="DLoadService" />
 

@@ -7,4 +7,6 @@
     <string name="play">Play</string>
     <string name="download">Download</string>
     <string name="download_all">Download all</string>
+    <string name="serv_search_hint">Connect to server</string>
+    <string name="media_search_hint">Search media</string>
 </resources>
